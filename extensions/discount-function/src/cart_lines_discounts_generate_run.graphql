@@ -1,18 +1,18 @@
 query RunInput {
   cart {
-    igTestGroups: attribute (key: "igTestGroups") {
+    igTestGroups: attribute(key: "igTestGroups") {
       value
     }
     deliveryGroups {
       id
     }
     lines {
-      cfperkost {
+      cost {
         amountPerQuantity {
           amount
         }
       }
-      igTestGroupsLine:attribute(key: "_igTestGroups") {
+      igTestGroupsLine: attribute(key: "_igTestGroups") {
         value
       }
       id
