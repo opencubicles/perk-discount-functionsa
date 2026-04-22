@@ -1,0 +1,49 @@
+query RunInput {
+  cart {
+    igTestGroups: attribute (key: "igTestGroups") {
+      value
+    }
+    deliveryGroups {
+      id
+    }
+    lines {
+      cost {
+        amountPerQuantity {
+          amount
+        }
+      }
+      igTestGroupsLine:attribute(key: "_igTestGroups") {
+        value
+      }
+      id
+      quantity
+      merchandise {
+        ... on ProductVariant {
+          id
+          product {
+            id
+            handle
+            metafield1: metafield(namespace: "perk_product", key: "price") {
+              value
+            }
+            sale_discount: metafield(
+              namespace: "perk_product"
+              key: "sale_discount"
+            ) {
+              value
+            }
+            hasAnyKitsTag: hasAnyTag(tags: ["perk-core-bundle"])
+            hasChinosTag: hasAnyTag(tags: ["perk-core-chinos"])
+            hasBeltTag: hasAnyTag(tags: ["free-product"])
+          }
+        }
+      }
+    }
+  }
+  discount {
+    discountClasses
+    discountMetafield: metafield(namespace: "default", key: "coupon_name") {
+      value
+    }
+  }
+}
