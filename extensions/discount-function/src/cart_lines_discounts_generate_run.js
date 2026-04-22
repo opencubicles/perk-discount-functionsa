@@ -2,18 +2,17 @@ import {
   DiscountClass,
   OrderDiscountSelectionStrategy,
   ProductDiscountSelectionStrategy,
-} from '../generated/api';
-
-
-/**
-  * @typedef {import("../generated/api").CartInput} RunInput
-  * @typedef {import("../generated/api").CartLinesDiscountsGenerateRunResult} CartLinesDiscountsGenerateRunResult
-  */
+} from "../generated/api";
 
 /**
-  * @param {RunInput} input
-  * @returns {CartLinesDiscountsGenerateRunResult}
-  */
+ * @typedef {import("../generated/api").CartInput} RunInput
+ * @typedef {import("../generated/api").CartLinesDiscountsGenerateRunResult} CartLinesDiscountsGenerateRunResult
+ */
+
+/**
+ * @param {RunInput} input
+ * @returns {CartLinesDiscountsGenerateRunResult}
+ */
 
 function applyBundleDiscount(input) {
   const discounts = [];
@@ -35,9 +34,11 @@ function applyBundleDiscount(input) {
     const { amountPerQuantity } = line.cost;
     const quantity = line.quantity;
 
-    const finalPrice = parseFloat(line.merchandise.product.metafield1?.value || 0);
+    const finalPrice = parseFloat(
+      line.merchandise.product.metafield1?.value || 0,
+    );
     const saleDiscount = parseFloat(
-      line.merchandise.product.sale_discount?.value || 0
+      line.merchandise.product.sale_discount?.value || 0,
     );
     const lineItemPrice = parseFloat(amountPerQuantity.amount);
 
@@ -45,7 +46,7 @@ function applyBundleDiscount(input) {
 
     if (saleDiscount > 0) {
       if (saleDiscount < 1) {
-        finalDiscount = lineItemPrice * saleDiscount; //sale discount if in decimal then percentage discount 
+        finalDiscount = lineItemPrice * saleDiscount; //sale discount if in decimal then percentage discount
       } else {
         finalDiscount = saleDiscount;
       }
@@ -92,7 +93,7 @@ function applyPerkC25Discount(input) {
   }
 
   if (chinosQty >= 3) {
-    let candidates = chinosLines.map(line => ({
+    let candidates = chinosLines.map((line) => ({
       message: "Perk-C25OFF",
       targets: [{ cartLine: { id: line.id } }],
       value: {
@@ -166,7 +167,7 @@ function applyPerkOfferDiscount(input) {
   if (percentageDiscount) {
     for (const line of chinosLines) {
       candidates.push({
-        message: "Perk Offer",
+        message: "Discount Applied",
         targets: [{ cartLine: { id: line.id } }],
         value: {
           percentage: { value: percentageDiscount },
@@ -226,7 +227,7 @@ function applyPerkOfferDiscount(input) {
 export function cartLinesDiscountsGenerateRun(input) {
   console.log("input.cart.igTestGroups", input.cart.igTestGroups);
 
-  let igTestGroups = input.cart.igTestGroups?.value ?? '';
+  let igTestGroups = input.cart.igTestGroups?.value ?? "";
   const coupon_code_from_metafield =
     input?.discount?.discountMetafield?.value ?? "";
 
@@ -250,12 +251,13 @@ export function cartLinesDiscountsGenerateRun(input) {
     if (bundleOperation) {
       operations.push(...bundleOperation.operations); // ✅ FIXED
     }
-  } 
-  else if (coupon_code_from_metafield == "Perk-C25OFF" && !igTestGroups?.split(",").includes("05ed7d3c232d")) {
+  } else if (
+    coupon_code_from_metafield == "Perk-C25OFF" &&
+    !igTestGroups?.split(",").includes("05ed7d3c232d")
+  ) {
     const res = applyPerkC25Discount(input);
     operations.push(...res.operations);
-  } 
-  else if (
+  } else if (
     coupon_code_from_metafield == "Perk Offer" &&
     igTestGroups?.split(",").includes("05ed7d3c232d")
   ) {
