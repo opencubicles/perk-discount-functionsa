@@ -7,7 +7,7 @@ query RunInput {
       id
     }
     lines {
-      cost {
+      cfperkost {
         amountPerQuantity {
           amount
         }

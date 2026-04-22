@@ -9,7 +9,7 @@ import {
  * @typedef {import("../generated/api").CartLinesDiscountsGenerateRunResult} CartLinesDiscountsGenerateRunResult
  */
 
-/**
+/**f
  * @param {RunInput} input
  * @returns {CartLinesDiscountsGenerateRunResult}
  */
@@ -192,7 +192,7 @@ function applyPerkOfferDiscount(input) {
       }
 
       candidates.push({
-        message: "Perk Offer",
+        message: "Discount Applied",
         targets: [{ cartLine: { id: line.id } }],
         value: {
           fixedAmount: { amount },
