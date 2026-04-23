@@ -251,15 +251,12 @@ export function cartLinesDiscountsGenerateRun(input) {
     if (bundleOperation) {
       operations.push(...bundleOperation.operations); // ✅ FIXED
     }
-  } else if (
-    coupon_code_from_metafield == "Perk-C25OFF" &&
-    !igTestGroups?.split(",").includes("05ed7d3c232d")
-  ) {
+  } else if (coupon_code_from_metafield == "Perk-C25OFF") {
     const res = applyPerkC25Discount(input);
     operations.push(...res.operations);
   } else if (
-    coupon_code_from_metafield == "Perk Offer" &&
-    igTestGroups?.split(",").includes("05ed7d3c232d")
+    coupon_code_from_metafield === "Perk Offer" &&
+    (igTestGroups || "").split(",").includes("458b2725bfa5")
   ) {
     const res = applyPerkOfferDiscount(input);
     operations.push(...res.operations);
