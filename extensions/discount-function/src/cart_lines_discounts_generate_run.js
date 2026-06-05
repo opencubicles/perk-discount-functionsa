@@ -145,29 +145,18 @@ function applyPerkOfferDiscount(input) {
   let giveFreeBelt = false;
 
   if (chinosQty === 2) {
-    fixedDiscount = 38;
-  } else if (chinosQty === 3) {
-    fixedDiscount = 90;
+    percentageDiscount = 15;
     giveFreeBelt = true;
-  } else if (chinosQty === 4) {
-    fixedDiscount = 137;
-    giveFreeBelt = true;
-  } else if (chinosQty === 5) {
-    fixedDiscount = 186;
-    giveFreeBelt = true;
-  } else if (chinosQty === 6) {
-    fixedDiscount = 237;
-    giveFreeBelt = true;
-  } else if (chinosQty > 6) {
+  } else if (chinosQty >= 3) {
     percentageDiscount = 30;
     giveFreeBelt = true;
-  }
+  } 
 
   // ✅ Percentage case
   if (percentageDiscount) {
     for (const line of chinosLines) {
       candidates.push({
-        message: "Discount Applied",
+        message: "FD DISCOUNT",
         targets: [{ cartLine: { id: line.id } }],
         value: {
           percentage: { value: percentageDiscount },
@@ -204,7 +193,7 @@ function applyPerkOfferDiscount(input) {
   // ✅ Free belt
   if (giveFreeBelt && beltLine) {
     candidates.push({
-      message: "Free Belt",
+      message: "Free Tee",
       targets: [{ cartLine: { id: beltLine.id, quantity: 1 } }],
       value: {
         percentage: { value: 100 },
@@ -235,7 +224,8 @@ export function cartLinesDiscountsGenerateRun(input) {
   if (!igTestGroups) {
     for (const line of input.cart.lines) {
       if (line?.igTestGroupsLine) {
-        igTestGroups = line.igTestGroupsLine;
+        igTestGroups = line.igTestGroupsLine.value;
+        console.log(line.igTestGroupsLine.value);
         break;
       }
     }
@@ -252,15 +242,19 @@ export function cartLinesDiscountsGenerateRun(input) {
       operations.push(...bundleOperation.operations); // ✅ FIXED
     }
   } else if (
-    coupon_code_from_metafield == "Perk-C25OFF" &&
-    !(igTestGroups || "").split(",").includes("05ed7d3c232dx")
+    coupon_code_from_metafield == "Perk-C25OFFx" &&
+    !(igTestGroups || "").split(",").includes("298e54c3dc29x")
   ) {
     const res = applyPerkC25Discount(input);
     operations.push(...res.operations);
   } else if (
-    coupon_code_from_metafield === "Perk Offer" &&
-    (igTestGroups || "").split(",").includes("458b2725bfa5")
+    coupon_code_from_metafield === "Perk Offerx" &&
+    (igTestGroups || "").split(",").includes("298e54c3dc29x")
   ) {
+    const res = applyPerkOfferDiscount(input);
+    operations.push(...res.operations);
+  }
+  else {
     const res = applyPerkOfferDiscount(input);
     operations.push(...res.operations);
   }
