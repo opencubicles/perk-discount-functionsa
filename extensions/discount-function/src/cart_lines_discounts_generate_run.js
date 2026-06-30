@@ -41,7 +41,17 @@ function applyNSTDiscount(input) {
     );
     const lineItemPrice = parseFloat(amountPerQuantity.amount);
 
-    let finalDiscount = 1;
+    let finalDiscount = 0;
+
+    const title = line.merchandise?.title || "";
+
+    if (title.includes("Pack: 2")) {
+      finalDiscount = 9;
+    } else if (title.includes("Pack: 3")) {
+      finalDiscount = 40;
+    } else if (title.includes("Pack: 4")) {
+      finalDiscount = 56;
+    }
 
     console.log("finalDiscount", finalDiscount);
     if (finalDiscount > 0) {
@@ -297,9 +307,8 @@ export function cartLinesDiscountsGenerateRun(input) {
       operations.push(...bundleOperation.operations); // ✅ FIXED
     }
   } else if (
-    igTestGroups &&
-    ((igTestGroups || "").split(",").includes("181846891c4d") ||
-      (igTestGroups || "").split(",").includes("afd16e7eb5f2")) &&
+    (igTestGroups.includes("181846891c4d") ||
+      igTestGroups.includes("afd16e7eb5f2")) &&
     coupon_code_from_metafield === "NST_discount"
   ) {
     const nstOperation = applyNSTDiscount(input);
