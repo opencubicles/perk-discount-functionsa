@@ -296,7 +296,12 @@ export function cartLinesDiscountsGenerateRun(input) {
     if (bundleOperation) {
       operations.push(...bundleOperation.operations); // ✅ FIXED
     }
-  } else if (coupon_code_from_metafield == "NST_discount") {
+  } else if (
+    igTestGroups &&
+    ((igTestGroups || "").split(",").includes("181846891c4d") ||
+      (igTestGroups || "").split(",").includes("afd16e7eb5f2")) &&
+    coupon_code_from_metafield === "NST_discount"
+  ) {
     const nstOperation = applyNSTDiscount(input);
 
     if (nstOperation) {
