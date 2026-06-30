@@ -13,7 +13,62 @@ import {
  * @param {RunInput} input
  * @returns {CartLinesDiscountsGenerateRunResult}
  */
+function applyNSTDiscount(input) {
+  const discounts = [];
+  const kitsArray = {};
 
+  for (const line of input.cart.lines) {
+    if (line.merchandise?.product?.handle?.toLowerCase().includes("sweat")) {
+      kitsArray[line.id] = line;
+    }
+  }
+
+  if (!Object.keys(kitsArray).length) {
+    return { operations: [] };
+  }
+
+  for (const id in kitsArray) {
+    const line = kitsArray[id];
+
+    const { amountPerQuantity } = line.cost;
+    const quantity = line.quantity;
+
+    const finalPrice = parseFloat(
+      line.merchandise.product.metafield1?.value || 0,
+    );
+    const saleDiscount = parseFloat(
+      line.merchandise.product.sale_discount?.value || 0,
+    );
+    const lineItemPrice = parseFloat(amountPerQuantity.amount);
+
+    let finalDiscount = 1;
+
+    console.log("finalDiscount", finalDiscount);
+    if (finalDiscount > 0) {
+      discounts.push({
+        message: "NST Discount",
+        targets: [{ cartLine: { id, quantity } }], // ✅ now valid
+        value: {
+          fixedAmount: {
+            amount: finalDiscount.toString(),
+            appliesToEachItem: true,
+          },
+        },
+      });
+    }
+  }
+
+  return {
+    operations: [
+      {
+        productDiscountsAdd: {
+          candidates: discounts,
+          selectionStrategy: ProductDiscountSelectionStrategy.All,
+        },
+      },
+    ],
+  };
+}
 function applyBundleDiscount(input) {
   const discounts = [];
   const kitsArray = {};
@@ -150,7 +205,7 @@ function applyPerkOfferDiscount(input) {
   } else if (chinosQty >= 3) {
     percentageDiscount = 30;
     giveFreeBelt = true;
-  } 
+  }
 
   // ✅ Percentage case
   if (percentageDiscount) {
@@ -196,7 +251,7 @@ function applyPerkOfferDiscount(input) {
       message: "Free Tee",
       targets: [{ cartLine: { id: beltLine.id, quantity: 1 } }],
       value: {
-        percentage: { value: 100 },
+        fixedAmount: { amount: "55.00" },
       },
     });
   }
@@ -241,6 +296,12 @@ export function cartLinesDiscountsGenerateRun(input) {
     if (bundleOperation) {
       operations.push(...bundleOperation.operations); // ✅ FIXED
     }
+  } else if (coupon_code_from_metafield == "NST_discount") {
+    const nstOperation = applyNSTDiscount(input);
+
+    if (nstOperation) {
+      operations.push(...nstOperation.operations); // ✅ FIXED
+    }
   } else if (
     coupon_code_from_metafield == "Perk-C25OFFx" &&
     !(igTestGroups || "").split(",").includes("298e54c3dc29x")
@@ -253,8 +314,7 @@ export function cartLinesDiscountsGenerateRun(input) {
   ) {
     const res = applyPerkOfferDiscount(input);
     operations.push(...res.operations);
-  }
-  else {
+  } else {
     const res = applyPerkOfferDiscount(input);
     operations.push(...res.operations);
   }
