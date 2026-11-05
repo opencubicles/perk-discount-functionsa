@@ -13,7 +13,7 @@ import {
  * @param {RunInput} input
  * @returns {CartLinesDiscountsGenerateRunResult}
  */
-function applyNSTDiscount(input) {
+function applyNSTDiscount(input, igTestGroups) {
   const discounts = [];
   const kitsArray = {};
 
@@ -45,12 +45,25 @@ function applyNSTDiscount(input) {
 
     const title = line.merchandise?.title || "";
 
-    if (title.includes("Pack: 2")) {
-      finalDiscount = 9;
-    } else if (title.includes("Pack: 3")) {
-      finalDiscount = 40;
-    } else if (title.includes("Pack: 4")) {
-      finalDiscount = 56;
+    if (
+      igTestGroups.includes("181846891c4d") ||
+      igTestGroups.includes("afd16e7eb5f2")
+    ) {
+      if (title.includes("2 Pack")) {
+        finalDiscount = 21;
+      } else if (title.includes("3 Pack")) {
+        finalDiscount = 66;
+      } else if (title.includes("4 Pack")) {
+        finalDiscount = 101;
+      }
+    } else {
+      if (title.includes("2 Pack")) {
+        finalDiscount = 12;
+      } else if (title.includes("3 Pack")) {
+        finalDiscount = 26;
+      } else if (title.includes("4 Pack")) {
+        finalDiscount = 45;
+      }
     }
 
     console.log("finalDiscount", finalDiscount);
@@ -200,7 +213,7 @@ function applyPerkOfferDiscount(input) {
     }
   }
 
-  if (chinosQty <= 1) {
+  if (chinosQty < 1) {
     return { operations: [] };
   }
 
@@ -208,12 +221,14 @@ function applyPerkOfferDiscount(input) {
   let fixedDiscount = 0;
   let percentageDiscount = null;
   let giveFreeBelt = false;
-
-  if (chinosQty === 2) {
-    percentageDiscount = 15;
+  if (chinosQty === 1) {
+    let fixedDiscount = 0;
+    giveFreeBelt = true;
+  } else if (chinosQty === 2) {
+    fixedDiscount = 10;
     giveFreeBelt = true;
   } else if (chinosQty >= 3) {
-    percentageDiscount = 30;
+    fixedDiscount = 29;
     giveFreeBelt = true;
   }
 
@@ -235,21 +250,21 @@ function applyPerkOfferDiscount(input) {
     let remaining = fixedDiscount;
 
     chinosLines.forEach((line, index) => {
-      let amount;
+      // let amount;
 
-      if (index === chinosLines.length - 1) {
-        amount = remaining;
-      } else {
-        amount =
-          Math.round((line.quantity / chinosQty) * fixedDiscount * 100) / 100;
-        remaining -= amount;
-      }
+      // if (index === chinosLines.length - 1) {
+      //   amount = remaining;
+      // } else {
+      //   amount =
+      //     Math.round((line.quantity / chinosQty) * fixedDiscount * 100) / 100;
+      //   remaining -= amount;
+      // }
 
       candidates.push({
         message: "Discount Applied",
         targets: [{ cartLine: { id: line.id } }],
         value: {
-          fixedAmount: { amount },
+          fixedAmount: { amount: (fixedDiscount * line.quantity).toString() },
         },
       });
     });
@@ -306,12 +321,8 @@ export function cartLinesDiscountsGenerateRun(input) {
     if (bundleOperation) {
       operations.push(...bundleOperation.operations); // ✅ FIXED
     }
-  } else if (
-    (igTestGroups.includes("181846891c4d") ||
-      igTestGroups.includes("afd16e7eb5f2")) &&
-    coupon_code_from_metafield === "NST_discount"
-  ) {
-    const nstOperation = applyNSTDiscount(input);
+  } else if (coupon_code_from_metafield === "NST_discount") {
+    const nstOperation = applyNSTDiscount(input, igTestGroups);
 
     if (nstOperation) {
       operations.push(...nstOperation.operations); // ✅ FIXED
